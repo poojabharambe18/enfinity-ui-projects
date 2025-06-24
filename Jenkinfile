@@ -1,13 +1,14 @@
 pipeline {
-    agent {label 'jenkins-agent1'}
+    agent { label 'jenkins-agent1' }
 
     tools {
-        nodejs 'nodejs20'                  
-          
+        nodejs 'nodejs20'
+    }
+
     environment {
-        SONAR_PROJECT_KEY = 'enfinity-ui-projects'                   
-        SONAR_HOST_URL = 'http://10.150.17.38:9000'       
-        SONAR_TOKEN = sqa_2ed45a8d35962d0ed05826d21f99f5f23b2e8cfb                  
+        SONAR_PROJECT_KEY = 'enfinity-ui-projects'
+        SONAR_HOST_URL = 'http://10.150.17.38:9000'
+        SONAR_TOKEN = 'sqa_2ed45a8d35962d0ed05826d21f99f5f23b2e8cfb'
     }
 
     stages {
@@ -21,11 +22,11 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonarqube') {
                     sh """
-                    sonar-scanner \
-                      -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                      -Dsonar.sources=. \
-                      -Dsonar.host.url=${SONAR_HOST_URL} \
-                      -Dsonar.login=${SONAR_TOKEN}
+                        sonar-scanner \\
+                          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \\
+                          -Dsonar.sources=. \\
+                          -Dsonar.host.url=${SONAR_HOST_URL} \\
+                          -Dsonar.login=${SONAR_TOKEN}
                     """
                 }
             }
@@ -53,4 +54,3 @@ pipeline {
         }
     }
 }
-
