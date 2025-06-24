@@ -1,0 +1,97 @@
+@Library('jenkins-shared-library@main') _
+
+pipeline {
+    agent {
+        label 'Jenkins-Agent'
+    }
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+    environment {
+        GIT_REPO_URL = 'https://github.com/adminacute/Enfinity-PropertyConfigService.git'
+        GIT_CREDENTIALS = 'jennkins-to-github'
+        KUBECONFIG = 'kubeconfig'
+        FILENAME = 'cbs-propertyconfig-deploy-service.yaml'
+        MICROSERVICE = 'Enfinity-PropertyConfigService'
+        BRANCH = 'devops_main'
+        IMAGE_NAME = 'actdocker123/cbs-micro-service'
+        // DEPLOYMENTNAME = 'cbs-fd-microservice-deployment'
+        EMAIL_RECIPIENT = 'jaid.shaikh@bankaiinformatics.co.in,krishna.chauhan@bankaiinformatics.co.in,jayendra.sathwara@bankaiinformatics.co.in,sajid.sachawala@bankaiinformatics.co.in,chandan.chauhan@bankaiinformatics.co.in,vishal.suryawanshi@bankaiinformatics.co.in'
+    }
+
+    stages {
+        stage('Cleanup Workspace') {
+            steps {
+                script {
+                    cleanWs()
+                }
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                script {
+                    checkoutRepo(env.GIT_REPO_URL, env.GIT_CREDENTIALS, env.BRANCH)
+                }
+            }
+        }
+
+        // stage('Copy API DATA to workspace') {
+        //     steps {
+        //         script {
+        //             sh 'cp -r /opt/allservice_APIDATA/${MICROSERVICE}/API_DATA/ ${WORKSPACE}/'
+        //         }
+        //     }
+        // }
+
+        stage('Build Application') {
+            steps {
+                mvnBuild()
+            }
+        }
+
+        // stage('Test Application') {
+        //     steps {
+        //         mvnTest()
+        //     }
+        // }
+
+        stage('Extract and Increment Image Tag') {
+            steps {
+                extractIncreamentForFiveDigit()
+            }
+        }
+
+        stage('Build and Push Docker Image') {
+            steps {
+                buildAndPushDockerImage(env.IMAGE_NAME, env.NEW_TAG)
+            }
+        }
+        
+        stage('Update Manifest and K8s Deployment') {
+            steps {
+                updateManifestDeploy(env.FILENAME, env.NEW_TAG, env.IMAGE_NAME)
+            }
+        }
+        
+        stage('Push Deployment File to Git') {
+            steps {
+                pushDeploymentFileToGit(env.FILENAME, env.NEW_TAG, env.BRANCH, env.GIT_CREDENTIALS, env.GIT_REPO_URL,)
+            }
+        }
+        stage('Trivy Image Scan') {
+            steps {
+                sh 'trivy image ${IMAGE_NAME}:${NEW_TAG} --format table -o ${MICROSERVICE}.tpl '
+            }
+        }
+    }
+    post {
+        success {
+            notification('SUCCESS', env.EMAIL_RECIPIENT)
+        }
+        failure {
+            notification('FAILURE', env.EMAIL_RECIPIENT)
+        }
+    }
+}
