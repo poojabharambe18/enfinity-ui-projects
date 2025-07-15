@@ -2,7 +2,8 @@ pipeline {
     agent { label 'jenkins-agent1' }
 
     tools {
-        nodejs 'node20' 
+        nodejs 'node20'
+        sonarScanner 'SonarScanner'
     }
 
     environment {
