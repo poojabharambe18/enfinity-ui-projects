@@ -6,28 +6,34 @@ pipeline {
     }
 
     environment {
-        SONAR_PROJECT_KEY = 'enfinity-ui-projects'
-        SONAR_HOST_URL = 'http://10.150.17.38:9000'
-        SONAR_TOKEN = 'sqa_2ed45a8d35962d0ed05826d21f99f5f23b2e8cfb'
+        GIT_REPO_URL = 'https://github.com/poojabharambe18/enfinity-ui-projects.git'
+        BRANCH       = 'master'
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Cleanup Workspace') {
             steps {
-                git branch: 'master', url: 'https://github.com/poojabharambe18/enfinity-ui-projects.git'
+                cleanWs()
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                git branch: "${env.BRANCH}",
+                    url: "${env.GIT_REPO_URL}"
             }
         }
 
         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('sonarqube-token') {
-                    sh """
-                        sonar-scanner \\
-                          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \\
-                          -Dsonar.sources=. \\
-                          -Dsonar.host.url=${SONAR_HOST_URL} \\
-                          -Dsonar.login=${SONAR_TOKEN}
-                    """
+                    sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=frontend-profile \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=http://10.14.1.49:9000 \
+                          -Dsonar.token=sqp_05341675b56c3f5b904c2563b78b1886413dde93
+                    '''
                 }
             }
         }
@@ -47,10 +53,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully.'
+            echo 'Frontend pipeline completed successfully.'
         }
         failure {
-            echo 'Pipeline failed.'
+            echo 'Frontend pipeline failed.'
         }
     }
 }
