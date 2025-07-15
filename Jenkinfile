@@ -28,7 +28,7 @@ pipeline {
             steps {
                 script {
                     // Get sonar-scanner path from Jenkins tool config
-                    def scannerHome = tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                    def scannerHome = tool name: 'sonarqube-token', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                     
                     withSonarQubeEnv('sonarqube-token') {
                         sh """
