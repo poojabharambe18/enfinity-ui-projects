@@ -6,8 +6,9 @@ pipeline {
     }
 
     environment {
-        GIT_REPO_URL = 'https://github.com/poojabharambe18/enfinity-ui-projects.git'
-        BRANCH       = 'master'
+        GIT_REPO_URL    = 'https://github.com/poojabharambe18/enfinity-ui-projects.git'
+        BRANCH          = 'master'
+        EMAIL_RECIPIENT = 'krishna.chauhan@bankaiinformatics.co.in,pooja.bharambe@bankaiinformatics.co.in'
     }
 
     stages {
@@ -58,10 +59,14 @@ pipeline {
 
     post {
         success {
-            echo 'Frontend pipeline completed successfully.'
+            mail to: "${env.EMAIL_RECIPIENT}",
+                 subject: "Build SUCCESS",
+                 body: "The frontend pipeline completed successfully."
         }
         failure {
-            echo 'Frontend pipeline failed.'
+            mail to: "${env.EMAIL_RECIPIENT}",
+                 subject: "Build FAILURE",
+                 body: "The frontend pipeline failed. Please check Jenkins."
         }
     }
 }
