@@ -19,17 +19,21 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: "${env.BRANCH}",
-                    url: "${env.GIT_REPO_URL}"
+                git branch: "${env.BRANCH}", url: "${env.GIT_REPO_URL}"
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install --legacy-peer-deps'
             }
         }
 
         stage('SonarQube Scan') {
             steps {
                 script {
-                    // Get sonar-scanner path from Jenkins tool config
                     def scannerHome = tool name: 'sonarqube-token', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                    
+
                     withSonarQubeEnv('sonarqube-token') {
                         sh """
                             ${scannerHome}/bin/sonar-scanner \\
@@ -42,12 +46,6 @@ pipeline {
                         """
                     }
                 }
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm install --legacy-peer-deps'
             }
         }
 
