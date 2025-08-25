@@ -33,18 +33,20 @@ pipeline {
         stage('SonarQube Scan') {
             steps {
                 script {
-                    def scannerHome = tool name: 'sonarqube-token', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                        def scannerHome = tool name: 'sonarqube-token', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
 
-                    withSonarQubeEnv('sonarqube-token') {
-                        sh """
-                            ${scannerHome}/bin/sonar-scanner \\
-                              -Dsonar.projectKey=frontend-profile \\
-                              -Dsonar.sources=. \\
-                              -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts \\
-                              -Dsonar.host.url=http://10.14.1.49:9000 \\
-                              -Dsonar.token=sqp_05341675b56c3f5b904c2563b78b1886413dde93 \\
-                              -Dsonar.sourceEncoding=UTF-8
-                        """
+                        withSonarQubeEnv('sonarqube-token') {
+                            sh """
+                                ${scannerHome}/bin/sonar-scanner \\
+                                  -Dsonar.projectKey=frontend-profile \\
+                                  -Dsonar.sources=. \\
+                                  -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts \\
+                                  -Dsonar.host.url=http://10.14.1.49:9000 \\
+                                  -Dsonar.token=sqp_05341675b56c3f5b904c2563b78b1886413dde93 \\
+                                  -Dsonar.sourceEncoding=UTF-8
+                            """
+                        }
                     }
                 }
             }
