@@ -30,6 +30,12 @@ pipeline {
             }
         }
 
+        stage('Build Frontend') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+
         stage('SonarQube Scan') {
             steps {
                 script {
@@ -49,12 +55,6 @@ pipeline {
                         }
                     }
                 }
-            }
-        }
-
-        stage('Build Frontend') {
-            steps {
-                sh 'npm run build'
             }
         }
     }
